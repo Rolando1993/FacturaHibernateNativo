@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 23/06/2018 11:28:15 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.proyecto.entidades.Factura" table="factura" schema="public" optimistic-lock="version">
+        <id name="codigofactura" type="int">
+            <column name="codigofactura" />
+            <generator class="increment" />
+        </id>
+        <many-to-one name="cliente" class="com.proyecto.entidades.Cliente" fetch="select">
+            <column name="codigocliente" />
+        </many-to-one>
+        <many-to-one name="vendedor" class="com.proyecto.entidades.Vendedor" fetch="select">
+            <column name="codigovendedor" />
+        </many-to-one>
+        <property name="numerofactura" type="java.lang.Integer">
+            <column name="numerofactura" />
+        </property>
+        <property name="totalventa" type="big_decimal">
+            <column name="totalventa" precision="10" />
+        </property>
+        <property name="fecharegistro" type="timestamp">
+            <column name="fecharegistro" length="29" />
+        </property>
+        <set name="detallefacturas" table="detallefactura" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="codigofactura" not-null="true" />
+            </key>
+            <one-to-many class="com.proyecto.entidades.Detallefactura" />
+        </set>
+    </class>
+</hibernate-mapping>

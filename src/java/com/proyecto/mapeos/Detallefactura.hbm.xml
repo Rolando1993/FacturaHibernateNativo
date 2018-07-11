@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 23/06/2018 11:28:15 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.proyecto.entidades.Detallefactura" table="detallefactura" schema="public" optimistic-lock="version">
+        <id name="codigodetalle" type="int">
+            <column name="codigodetalle" />
+            <generator class="increment" />
+        </id>
+        <many-to-one name="factura" class="com.proyecto.entidades.Factura" fetch="select">
+            <column name="codigofactura" not-null="true" />
+        </many-to-one>
+        <many-to-one name="producto" class="com.proyecto.entidades.Producto" fetch="select">
+            <column name="codigoproducto" not-null="true" />
+        </many-to-one>
+        <property name="codigobarra" type="string">
+            <column name="codigobarra" length="50" />
+        </property>
+        <property name="nombre" type="string">
+            <column name="nombre" length="100" />
+        </property>
+        <property name="cantidad" type="java.lang.Integer">
+            <column name="cantidad" />
+        </property>
+        <property name="precioventa" type="big_decimal">
+            <column name="precioventa" precision="10" />
+        </property>
+        <property name="total" type="big_decimal">
+            <column name="total" precision="10" />
+        </property>
+    </class>
+</hibernate-mapping>

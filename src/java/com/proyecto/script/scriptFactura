@@ -1,0 +1,115 @@
+/* ---------------------------------------------------------------------- */
+/* Script generated with: DeZign for Databases v6.2.1                     */
+/* Target DBMS:           PostgreSQL 8.3                                  */
+/* Project file:          Project1.dez                                    */
+/* Project name:                                                          */
+/* Author:                                                                */
+/* Script type:           Database creation script                        */
+/* Created on:            2018-06-14 12:18                                */
+/* ---------------------------------------------------------------------- */
+
+
+/* ---------------------------------------------------------------------- */
+/* Tables                                                                 */
+/* ---------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------- */
+/* Add table "Vendedor"                                                   */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE Vendedor (
+    codigoVendedor SERIAL   NOT NULL,
+    nombres CHARACTER VARYING(100) ,
+    apellidos CHARACTER VARYING(100) ,
+    dni CHARACTER VARYING(50) ,
+    celuldar CHARACTER VARYING(30) ,
+    direccion CHARACTER VARYING(100) ,
+    CONSTRAINT PK_Vendedor PRIMARY KEY (codigoVendedor)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "Usuario"                                                    */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE Usuario (
+    codigoUsuario SERIAL   NOT NULL,
+    nombre CHARACTER VARYING(100) ,
+    password CHARACTER VARYING(100) ,
+    codigoVendedor INTEGER ,
+    CONSTRAINT PK_Usuario PRIMARY KEY (codigoUsuario)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "Cliente"                                                    */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE Cliente (
+    codigoCliente SERIAL   NOT NULL,
+    nombres CHARACTER VARYING(100) ,
+    apellidos CHARACTER VARYING(100) ,
+    direccion CHARACTER VARYING(100) ,
+    CONSTRAINT PK_Cliente PRIMARY KEY (codigoCliente)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "Factura"                                                    */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE Factura (
+    codigoFactura SERIAL   NOT NULL,
+    numeroFactura INTEGER ,
+    totalVenta DECIMAL(10,2) ,
+    fechaRegistro TIMESTAMP ,
+    codigoVendedor INTEGER ,
+    codigoCliente INTEGER ,
+    CONSTRAINT PK_Factura PRIMARY KEY (codigoFactura)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "Producto"                                                   */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE Producto (
+    codigoProducto SERIAL   NOT NULL,
+    nombre CHARACTER VARYING(100) ,
+    precioVenta DECIMAL(10,2) ,
+    stockMinimo INTEGER ,
+    stockActual INTEGER ,
+    codigoBarra CHARACTER VARYING(50) ,
+    CONSTRAINT PK_Producto PRIMARY KEY (codigoProducto)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "DetalleFactura"                                             */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE DetalleFactura (
+    codigoDetalle SERIAL   NOT NULL,
+    codigoFactura INTEGER   NOT NULL,
+    codigoProducto INTEGER   NOT NULL,
+    codigoBarra CHARACTER VARYING(50) ,
+    nombre CHARACTER VARYING(100) ,
+    cantidad INTEGER ,
+    precioVenta DECIMAL(10,2) ,
+    total DECIMAL(10,2) ,
+    CONSTRAINT PK_DetalleFactura PRIMARY KEY (codigoDetalle)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Foreign key constraints                                                */
+/* ---------------------------------------------------------------------- */
+
+ALTER TABLE Usuario ADD CONSTRAINT Vendedor_Usuario 
+    FOREIGN KEY (codigoVendedor) REFERENCES Vendedor (codigoVendedor);
+
+ALTER TABLE Factura ADD CONSTRAINT Vendedor_Factura 
+    FOREIGN KEY (codigoVendedor) REFERENCES Vendedor (codigoVendedor);
+
+ALTER TABLE Factura ADD CONSTRAINT Cliente_Factura 
+    FOREIGN KEY (codigoCliente) REFERENCES Cliente (codigoCliente);
+
+ALTER TABLE DetalleFactura ADD CONSTRAINT Factura_DetalleFactura 
+    FOREIGN KEY (codigoFactura) REFERENCES Factura (codigoFactura);
+
+ALTER TABLE DetalleFactura ADD CONSTRAINT Producto_DetalleFactura 
+    FOREIGN KEY (codigoProducto) REFERENCES Producto (codigoProducto);
