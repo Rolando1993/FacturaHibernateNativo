@@ -12,6 +12,13 @@
 
             <ui:define name="content">
                 <h2>Realizar Venta</h2>
+                <h:form>
+                    <h:panelGrid width="900px" style="margin: 0 auto; background-color: lightgray">
+                        <p:commandButton value="Nueva Venta" actionListener="#{facturaMB.numeroFactura()}"
+                                         style="width: 150px; height: 30px;" update=":formFactura"/>
+                    </h:panelGrid>
+                </h:form>
+                
                 <h:form id="formFactura">
                     <p:growl id="mensajeGeneral" showDetail="true" autoUpdate="true" life="3000"/>
                     <p:panel header="-*-*" style="width: 900px; margin: 0 auto; text-align: center;">
@@ -27,33 +34,33 @@
                                     </p:inputText>
                                     <p:commandButton value="..." oncomplete="PF('dialogClientes').show();"
                                                      update=":formFactura:dlgClientes"/>
-                                    
+
                                     <p:outputLabel value="Fecha:" style="font-weight: bold;"/>
                                     <p:outputLabel value="Fecha Del Sistema" style="font-weight: bold;"/>
                                 </h:panelGrid>
                                 <p:separator/>
-                                
+
                                 <h:panelGrid id="gridDatosCliente" columns="2">
                                     <p:outputLabel value="Nombre" style="font-weight: bold;"/>
                                     <p:outputLabel id="lblNombreCliente" value="#{facturaMB.cliente.nombres} #{facturaMB.cliente.apellidos}"/>
-                                    
+
                                     <p:outputLabel value="Direccion" style="font-weight: bold;"/>
                                     <p:outputLabel id="lblDireccionCliente" value="#{facturaMB.cliente.direccion}"/>
                                 </h:panelGrid>
-                                              
+
                             </p:layoutUnit>
-                            
+
                             <p:layoutUnit id="datosFactura" position="east" style="padding: 5px; text-align: center;
                                           font-size: 14px; size: 200">
                                 <p:panelGrid columns="1" style="font-size: 24px; font-weight: bold; margin-top: 30px; margin: 0 auto;">
                                     Factura
-                                    <p:outputLabel value="000001"/>
+                                    <p:outputLabel value="#{facturaMB.numeroFactura}"/>
                                 </p:panelGrid>
-                                              
+
                             </p:layoutUnit>
                         </p:layout>
                         <p:separator/>
-                        
+
                         <h:panelGrid id="gridBuscarProducto" columns="3">
                             <p:outputLabel value="Codigo De Barra"/>
                             <p:inputText id="txtBuscarProductoCodigoBarra" value="#{facturaMB.codigoBarra}" size="12">
@@ -63,47 +70,74 @@
                                              update=":formFactura:dlgProductos"/>
                         </h:panelGrid>
                         <p:separator/>
-                        
-                        <p:dataTable id="tablaProductosFactura" var="item" value="#{facturaMB.listDetalleFactura}">
+
+                        <p:dataTable id="tablaProductosFactura" var="item" value="#{facturaMB.listDetalleFactura}"
+                                     editable="true" rowIndexVar="rowIndex">
+
+                            <p:ajax event="rowEdit" listener="#{facturaMB.onRowEdit}" update=":formFactura:tablaProductosFactura :formFactura:gridTotalFactura" />
+                            <p:ajax event="rowEditCancel" listener="#{facturaMB.onRowCancel}" update=":formFactura:tablaProductosFactura :formFactura:gridTotalFactura" />
+
                             <p:column headerText="Codigo De Barra">
                                 <h:outputText value="#{item.codigobarra}"/>
                             </p:column>
-                            
+
                             <p:column headerText="Producto">
                                 <h:outputText value="#{item.nombre}"/>
                             </p:column>
-                            
+
                             <p:column headerText="Cantidad">
-                                <h:outputText value="#{item.cantidad}"/>
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{item.cantidad}"/>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText value="#{item.cantidad}" label="Cantidad Producto"
+                                                     required="true" requiredMessage="Es Necesario Una Cantidad"
+                                                     converter="#{Integer}" converterMessage="La Cantidad No Es Correcta"
+                                                     validatorMessage="La Cantidad Debe Ser Mayor O Igual A 1">
+                                            <f:validateLongRange minimum="1"/>
+                                        </p:inputText>
+                                    </f:facet>
+                                </p:cellEditor>
                             </p:column>
-                            
+
                             <p:column headerText="Precio Venta">
-                               $ <h:outputText value="#{item.precioventa}"/>
+                                $ <h:outputText value="#{item.precioventa}"/>
                             </p:column>
-                            
+
                             <p:column headerText="Total">
                                 $ <h:outputText value="#{item.total}"/>
+                            </p:column>
+
+                            <p:column headerText="Editar Cantidad">
+                                <p:rowEditor/>
+                            </p:column>
+
+                            <p:column headerText="Quitar Producto">
+                                <p:commandLink value="X" actionListener="#{facturaMB.quitarProducto(item.codigobarra, rowIndex)}"
+                                               title="Quitar Producto" style="text-decoration: none; color: greenyellow"
+                                               update=":formFactura:tablaProductosFactura :formFactura:gridTotalFactura"/>
                             </p:column>
                         </p:dataTable>
                         <p:separator/>
                         <p:panelGrid id="gridTotalFactura" columns="2" style="font-size: 24px; margin: 0 auto;">
                             Total Venta $
-                            <p:outputLabel value="#{facturaMB.factura.totalventa}"/>
+                            <p:outputLabel value="#{facturaMB.totalVentaFactura}"/>
                         </p:panelGrid>
                         <p:separator/>
-                        <p:commandButton value="Registrar" style="width: 150px; height: 60px;"/>
-                        <p:commandButton value="Imprimir" style="width: 150px; height: 60px;"/>
-                        <p:commandButton value="Cancelar" style="width: 150px; height: 60px;"/>
-                        
+                        <p:commandButton value="Registrar" style="width: 150px; height: 30px;"/>
+                        <p:commandButton value="Imprimir" style="width: 150px; height: 30px;"/>
+                        <p:commandButton value="Cancelar" style="width: 150px; height: 30px;"/>
+
                     </p:panel>
-                    
+
                     <!--Dialogo Para Mostrar Los Datos Del Cliente-->
                     <p:dialog id="dlgClientes" widgetVar="dialogClientes"  modal="true" resizable="false"
                               showEffect="explode" hideEffect="explode">
                         <p:dataTable id="dataclientes" paginator="true"  var="Cli" value="#{clienteMB.listaClientes}" scrollable="true" 
-                                         paginatorPosition="top"  style="width: 700px;"
-                                         rendered="#{not empty clienteMB.listaClientes}"
-                                         emptyMessage="No Hay Clientes">
+                                     paginatorPosition="top"  style="width: 700px;"
+                                     rendered="#{not empty clienteMB.listaClientes}"
+                                     emptyMessage="No Hay Clientes">
                             <p:column headerText="Codigo">
                                 <p:outputLabel value="#{Cli.codigocliente}"/>
                             </p:column>
@@ -123,18 +157,18 @@
                                 </p:commandButton>
                             </p:column>
                         </p:dataTable>
-                        
+
                         <p:commandButton value="Cerrar" onclick="PF('dialogClientes').hide();"/>
-                        
+
                     </p:dialog>
-                    
+
                     <!--Dialogo Para Mostrar Los Datos Del Producto-->
                     <p:dialog id="dlgProductos" widgetVar="dialogProductos"  modal="true" resizable="false"
                               showEffect="explode" hideEffect="explode">
                         <p:dataTable id="dataproductos" paginator="true"  var="pro" value="#{productoMB.listaProductos}" scrollable="true" 
-                                         paginatorPosition="top"  style="width: 1000px;"
-                                         
-                                         emptyMessage="No Hay Productos">
+                                     paginatorPosition="top"  style="width: 1000px;"
+
+                                     emptyMessage="No Hay Productos">
                             <p:column headerText="Codigo">
                                 <p:outputLabel value="#{pro.codigoproducto}"/>
                             </p:column>
@@ -160,11 +194,11 @@
                                 </p:commandButton>
                             </p:column>
                         </p:dataTable>
-                        
+
                         <p:commandButton value="Cerrar" onclick="PF('dialogProductos').hide();"/>
-                        
+
                     </p:dialog>
-                    
+
                     <!--Dialog Para Pedir La Cantidad De Producto A Vender-->
                     <p:dialog id="dlgCantidadProducto" widgetVar="dialogCantidadProducto" header="Cantidad"
                               modal="true">
@@ -174,8 +208,8 @@
                                          update=":formFactura:tablaProductosFactura :formFactura:dlgCantidadProducto :formFactura:gridTotalFactura"
                                          oncomplete="PF('dialogCantidadProducto').hide(); PF('dialogProductos').hide();"/>
                     </p:dialog>
-                    
-                    
+
+
                     <p:dialog id="dlgCantidadProducto2" widgetVar="dialogCantidadProducto2" header="Cantidad"
                               modal="true">
                         Cantidad De Producto A Vender: 
@@ -187,7 +221,7 @@
                 </h:form>
             </ui:define>
 
-            
+
         </ui:composition>
 
     </body>

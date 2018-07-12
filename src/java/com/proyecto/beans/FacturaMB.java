@@ -10,7 +10,9 @@ import com.proyecto.entidades.Detallefactura;
 import com.proyecto.entidades.Factura;
 import com.proyecto.entidades.Producto;
 import com.proyecto.negocio.ClienteBL;
+import com.proyecto.negocio.FacturaBL;
 import com.proyecto.negocio.ICLienteBL;
+import com.proyecto.negocio.IFacturaBL;
 import com.proyecto.negocio.IProductoBL;
 import com.proyecto.negocio.ProductoBL;
 import com.proyecto.util.HibernateUtil;
@@ -25,6 +27,7 @@ import javax.faces.context.FacesContext;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.RowEditEvent;
 
 /**
  *
@@ -53,9 +56,12 @@ public class FacturaMB implements Serializable {
 
     private String cantidadProducto2;
 
+    private Long numeroFactura;
+    IFacturaBL facturaBL = new FacturaBL();
+
+    private BigDecimal totalVentaFactura;
+    
     public FacturaMB() {
-        //cliente = new Cliente();
-        //producto = new Producto();
         this.factura = new Factura();
         this.listDetalleFactura = new ArrayList<>();
     }
@@ -131,6 +137,24 @@ public class FacturaMB implements Serializable {
     public void setCantidadProducto2(String cantidadProducto2) {
         this.cantidadProducto2 = cantidadProducto2;
     }
+
+    public Long getNumeroFactura() {
+        return numeroFactura;
+    }
+
+    public void setNumeroFactura(Long numeroFactura) {
+        this.numeroFactura = numeroFactura;
+    }
+
+    public BigDecimal getTotalVentaFactura() {
+        return totalVentaFactura;
+    }
+
+    public void setTotalVentaFactura(BigDecimal totalVentaFactura) {
+        this.totalVentaFactura = totalVentaFactura;
+    }
+    
+    
 
     //Metodo Para Agregar Los Clientes Por Medio Del Dialog
     public void datosDelCliente(Integer codCliente) {
@@ -287,7 +311,7 @@ public class FacturaMB implements Serializable {
 
     //Metodo Para Cacular El Total A Vender En La Factura
     public void totalFacturaVenta() {
-        BigDecimal totalFacturaVenta = new BigDecimal("0");
+        this.totalVentaFactura = new BigDecimal("0");
 
         try {
             /*
@@ -297,11 +321,80 @@ public class FacturaMB implements Serializable {
             for (Detallefactura item : listDetalleFactura) {
                 BigDecimal totalVentaPorProducto = item.getPrecioventa().multiply(new BigDecimal(item.getCantidad()));
                 item.setTotal(totalVentaPorProducto);
-                totalFacturaVenta = totalFacturaVenta.add(totalVentaPorProducto);
+                totalVentaFactura = totalVentaFactura.add(totalVentaPorProducto);
             }
-            this.factura.setTotalventa(totalFacturaVenta);
+            //Asignamos El Total De La Venta Al Objeto Factura Que Sera Llamado En El Metodo Realizar Venta
+            this.factura.setTotalventa(totalVentaFactura);
+            System.out.println("Total A Vender: " + this.factura.getTotalventa());
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", e.getMessage()));
+
+        }
+    }
+
+    //Metodo Para Quitar Un Producto De la Factura
+    public void quitarProducto(String codBarra, Integer filaSeleccionada) {
+        try {
+            int i = 0;
+            for (Detallefactura item : this.listDetalleFactura) {
+                if (item.getCodigobarra().equals(codBarra) && filaSeleccionada.equals(i)) {
+                    this.listDetalleFactura.remove(i);
+                    break;
+                }
+                i++;
+            }
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Informacion", "Se Retiro El Producto De La Factura"));
+            //Invocamos Al Metodo Calcular Factura Venta Para Actualizar El Total A Vender
+            this.totalFacturaVenta();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", e.getMessage()));
+        }
+    }
+
+    //Metodos Para Editar La Cantidad De producto En La Tabla 
+    public void onRowEdit(RowEditEvent event) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Informacion", "Se Modifico La Cantidad"));
+        //Invocamos Al Metodo Calcular Factura Venta Para Actualizar El Total A Vender
+        this.totalFacturaVenta();
+    }
+
+    public void onRowCancel(RowEditEvent event) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "No Se Hizo Ningun Cambio"));
+
+    }
+
+    //Metodo Para Generar El Numero De Factura
+    public void numeroFactura() {
+        this.sesion = null;
+        this.tx = null;
+        try {
+            this.sesion = HibernateUtil.getSessionFactory().openSession();
+            this.tx = this.sesion.beginTransaction();
+            //Verificamops Si Hay Registro En La Tabla Factura De La Base De Dtos
+            this.numeroFactura = facturaBL.obtenerTotalRegistro(this.sesion);
+            
+            if(this.numeroFactura <= 0 || this.numeroFactura == null){
+                this.numeroFactura = Long.valueOf("1");
+            }else{
+                //Recuperamos El Ultimo Registro Que Exista En La Tabla Factura De la Base De Datos
+                this.factura = facturaBL.obtenerRegistro(this.sesion);
+                this.numeroFactura = Long.valueOf(this.factura.getNumerofactura()+1);
+                
+                //Limpiar La Variable Total Venta Factura
+                this.totalVentaFactura = new BigDecimal("0");
+            }
+            this.tx.commit();
+
+        } catch (Exception e) {
+            if (this.tx != null) {
+                tx.rollback();
+            }
+            System.out.println(e.getMessage());
+        } finally {
+            if (this.sesion != null) {
+                this.sesion.close();
+            }
         }
     }
 
