@@ -46,6 +46,8 @@ Contributor(s):
     <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/Factura</property>
     <property name="hibernate.connection.username">postgres</property>
     <property name="hibernate.connection.password">1234</property>
+    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.current_session_context_class">thread</property>
     <mapping resource="com/proyecto/mapeos/Detallefactura.hbm.xml"/>
     <mapping resource="com/proyecto/mapeos/Cliente.hbm.xml"/>
     <mapping resource="com/proyecto/mapeos/Factura.hbm.xml"/>

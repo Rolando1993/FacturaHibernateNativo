@@ -6,6 +6,8 @@
 package com.proyecto.negocio;
 
 import com.proyecto.entidades.Usuario;
+import java.util.List;
+import org.hibernate.Session;
 
 /**
  *
@@ -15,4 +17,9 @@ public interface IUsuarioBL {
     
     public Usuario obtenerUsuario(Usuario usuario);
     public Usuario loginUsuario(Usuario usuario);
+    public List<Usuario> listaDeUsuarios();
+    public boolean guardarUsuario(Session sesion, Usuario usuario)throws Exception;
+    void save(Usuario u);
+    void update(Usuario u);
+    void delete(Usuario u);
 }

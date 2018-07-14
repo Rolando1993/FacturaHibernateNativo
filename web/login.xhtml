@@ -34,10 +34,10 @@
             <p:dialog header="Ingresar al Sistema" widgetVar="dlg" resizable="true">
                 <h:panelGrid columns="2" cellpadding="5">
                     <h:outputLabel for="usuario" value="Usuario:" />
-                    <p:inputText id="usuario" value="#{loginMB.nombre}" required="true" label="usuario" 
+                    <p:inputText id="usuario" value="#{loginMB.usuario.nombre}" required="true" label="usuario" 
                                  requiredMessage="Escriba El Usuario Por Favor"/>
                     <h:outputLabel for="password" value="Contraseña:" />
-                    <p:password id="password" value="#{loginMB.password}" required="true" label="Contraseña" 
+                    <p:password id="password" value="#{loginMB.usuario.password}" required="true" label="Contraseña" 
                                 requiredMessage="Escriba La Contraseña Por Favor"/>
                     <f:facet name="footer">
                         <center><p:commandButton value="Ingresar" update=":formLogin" actionListener="#{loginMB.login(event)}"
