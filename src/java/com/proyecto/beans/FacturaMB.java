@@ -9,9 +9,12 @@ import com.proyecto.entidades.Cliente;
 import com.proyecto.entidades.Detallefactura;
 import com.proyecto.entidades.Factura;
 import com.proyecto.entidades.Producto;
+import com.proyecto.entidades.Vendedor;
 import com.proyecto.negocio.ClienteBL;
+import com.proyecto.negocio.DetalleFacturaBL;
 import com.proyecto.negocio.FacturaBL;
 import com.proyecto.negocio.ICLienteBL;
+import com.proyecto.negocio.IDetalleFacturaBL;
 import com.proyecto.negocio.IFacturaBL;
 import com.proyecto.negocio.IProductoBL;
 import com.proyecto.negocio.ProductoBL;
@@ -19,6 +22,8 @@ import com.proyecto.util.HibernateUtil;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -60,10 +65,17 @@ public class FacturaMB implements Serializable {
     IFacturaBL facturaBL = new FacturaBL();
 
     private BigDecimal totalVentaFactura;
-    
+
+    private Vendedor vendedor = new Vendedor();
+
+    IDetalleFacturaBL detalleFacturaBL = new DetalleFacturaBL();
+
     public FacturaMB() {
         this.factura = new Factura();
         this.listDetalleFactura = new ArrayList<>();
+        this.vendedor = new Vendedor();
+        this.cliente = new Cliente();
+        this.producto = new Producto();
     }
 
     public Cliente getCliente() {
@@ -153,8 +165,14 @@ public class FacturaMB implements Serializable {
     public void setTotalVentaFactura(BigDecimal totalVentaFactura) {
         this.totalVentaFactura = totalVentaFactura;
     }
-    
-    
+
+    public Vendedor getVendedor() {
+        return vendedor;
+    }
+
+    public void setVendedor(Vendedor vendedor) {
+        this.vendedor = vendedor;
+    }
 
     //Metodo Para Agregar Los Clientes Por Medio Del Dialog
     public void datosDelCliente(Integer codCliente) {
@@ -361,7 +379,6 @@ public class FacturaMB implements Serializable {
 
     public void onRowCancel(RowEditEvent event) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "No Se Hizo Ningun Cambio"));
-
     }
 
     //Metodo Para Generar El Numero De Factura
@@ -373,14 +390,14 @@ public class FacturaMB implements Serializable {
             this.tx = this.sesion.beginTransaction();
             //Verificamops Si Hay Registro En La Tabla Factura De La Base De Dtos
             this.numeroFactura = facturaBL.obtenerTotalRegistro(this.sesion);
-            
-            if(this.numeroFactura <= 0 || this.numeroFactura == null){
+
+            if (this.numeroFactura <= 0 || this.numeroFactura == null) {
                 this.numeroFactura = Long.valueOf("1");
-            }else{
+            } else {
                 //Recuperamos El Ultimo Registro Que Exista En La Tabla Factura De la Base De Datos
                 this.factura = facturaBL.obtenerRegistro(this.sesion);
-                this.numeroFactura = Long.valueOf(this.factura.getNumerofactura()+1);
-                
+                this.numeroFactura = Long.valueOf(this.factura.getNumerofactura() + 1);
+
                 //Limpiar La Variable Total Venta Factura
                 this.totalVentaFactura = new BigDecimal("0");
             }
@@ -398,4 +415,89 @@ public class FacturaMB implements Serializable {
         }
     }
 
+    //Metodo Para Limpiar La Factura
+    public void limpiarFactura() {
+        this.cliente = new Cliente();
+        this.factura = new Factura();
+        this.listDetalleFactura = new ArrayList<>();
+        this.numeroFactura = null;
+        this.totalVentaFactura = null;
+        //Invocar El Metodo Para Desactivar El Button
+        this.disableButton();
+    }
+
+    //Metodo Para Guardar Venta
+    public void guardarVenta() {
+        this.sesion = null;
+        this.tx = null;
+        this.vendedor.setCodigovendedor(2);
+        try {
+            this.sesion = HibernateUtil.getSessionFactory().openSession();
+            this.tx = this.sesion.beginTransaction();
+            //Datos Para Guardar La Factura En La Base De Datos
+            this.factura.setNumerofactura(this.numeroFactura.intValue());
+            this.factura.setCliente(this.cliente);
+            this.factura.setVendedor(this.vendedor);
+            //Hacemos El Insert En La Tabla Factura De La Base De Datos
+            facturaBL.guardarFactura(this.sesion, this.factura);
+            //Recuperamos El Ultimo Registro De La Tabla Factura
+            this.factura = facturaBL.obtenerRegistro(this.sesion);
+            //Recorremos El ArrayList Para Guardar Cada Registro En La Base De Datos
+            for (Detallefactura item : listDetalleFactura) {
+                this.producto = productoBL.obtenerProducto(this.sesion, item.getCodigobarra());
+                item.setFactura(this.factura);
+                item.setProducto(this.producto);
+
+                //Hacemos El Insert En La Tabla Detalle Factura De La Base De Datos
+                detalleFacturaBL.guardarDetalleFactura(this.sesion, item);
+            }
+            this.tx.commit();
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Correcto", "Venta Registrada"));
+            this.limpiarFactura();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            if (this.tx != null) {
+                tx.rollback();
+            }
+        } finally {
+            if (this.sesion != null) {
+                this.sesion.close();
+            }
+        }
+    }
+    
+    //Metodos Para Activar & Desactivar Los Controles En la Factura
+    private boolean enable;
+
+    public boolean isEnable() {
+        return enable;
+    }
+    
+    public void enableButton(){
+        enable = true;
+    }
+    
+    public void disableButton(){
+        enable = false;
+    }
+    
+    //Recuperar Fecha Del Sistema
+    private String fechaSistema;
+
+    public String getFechaSistema() {
+        Calendar fecha = new GregorianCalendar();
+        int año = fecha.get(Calendar.YEAR);
+        int mes = fecha.get(Calendar.MONTH);
+        int dia = fecha.get(Calendar.DAY_OF_MONTH);
+        fechaSistema = (dia + "/" + (mes + 1) + "/" + año);
+        return fechaSistema;
+    }
+
+    public void setFechaSistema(String fechaSistema) {
+        this.fechaSistema = fechaSistema;
+    }
+    
+    
 }
+
+

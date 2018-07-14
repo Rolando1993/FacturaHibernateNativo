@@ -27,5 +27,10 @@ public class FacturaBL implements IFacturaBL{
     public Long obtenerTotalRegistro(Session sesion) {
         return this.facturaDao.obtenerTotalRegistroFactura(sesion);
     }
+
+    @Override
+    public boolean guardarFactura(Session sesion, Factura factura) throws Exception {
+        return facturaDao.guardarVentaFactura(sesion, factura);
+    }
     
 }

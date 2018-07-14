@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <f:facet name="first">
+            <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+            <title>--Usuario--</title>
+        </f:facet>
+    </h:head>
+    <h:body>
+        <h:form id="formLogin">   
+            <center>
+                <h1>Bienvenidos al Sistema de Gestion De Factura Electronica.</h1>
+            </center>
+            <br/>
+            <h:outputLink value="javascript:void(0)" onclick="PF('dlg').show();" title="Click sobre el logo para ingresar.">
+                <center>             
+                    <img src="Images/factura.jpg" alt="" width="270" height="230"/>
+                </center>
+            </h:outputLink>
+            <center><table>
+                    <tr><td style="font-family: raleway; font-size: 20px">Factura Electronica</td></tr>
+                    <tr/>
+                    <tr>
+                        <td style="font-family: raleway; font-size: 18px">
+                            
+                        </td>
+                    </tr>
+                </table></center>
+            <p:growl id="mensajeGeneral" sticky="true" showDetail="true" life="3000" />
+            <p:dialog header="Ingresar al Sistema" widgetVar="dlg" resizable="true">
+                <h:panelGrid columns="2" cellpadding="5">
+                    <h:outputLabel for="usuario" value="Usuario:" />
+                    <p:inputText id="usuario" value="#{loginMB.nombre}" required="true" label="usuario" 
+                                 requiredMessage="Escriba El Usuario Por Favor"/>
+                    <h:outputLabel for="password" value="Contraseña:" />
+                    <p:password id="password" value="#{loginMB.password}" required="true" label="Contraseña" 
+                                requiredMessage="Escriba La Contraseña Por Favor"/>
+                    <f:facet name="footer">
+                        <center><p:commandButton value="Ingresar" update=":formLogin" actionListener="#{loginMB.login(event)}"
+                                                 oncomplete="handleLoginRequest(xhr, status, args)" /></center>
+                    </f:facet>                    
+                </h:panelGrid>
+            </p:dialog>
+        </h:form>
+        <br />
+    </h:body>
+    <script type="text/javascript">
+        function handleLoginRequest(xhr, status, args) {
+            if (args.validationFailed || !args.loggedIn) {
+                PF('dlg').jq.effect("shake", {times: 1}, 100);
+            }
+            else {
+                PF('dlg').hide();
+                $('#loginLink').fadeOut();
+            }
+        }
+    </script>
+    
+    <!--
+    <script type="text/javascript">
+        function handleLoginRequest(xhr, status, args) {
+            if (args.validationFailed || !args.loggedIn) {
+                jQuery('#formLogin').effect("shake", {times: 3}, 350);
+            }
+            else {
+                location.href = args.ruta;
+            }
+        }
+    </script>-->
+</html>

@@ -31,5 +31,11 @@ public class FacturaDao implements IFacturaDao{
         
         return (Long) q.uniqueResult();
     }
+
+    @Override
+    public boolean guardarVentaFactura(Session sesion, Factura factura) throws Exception {
+        sesion.save(factura);
+        return true;
+    }
     
 }

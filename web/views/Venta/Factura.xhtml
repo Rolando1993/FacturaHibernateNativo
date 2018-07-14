@@ -15,7 +15,8 @@
                 <h:form>
                     <h:panelGrid width="900px" style="margin: 0 auto; background-color: lightgray">
                         <p:commandButton value="Nueva Venta" actionListener="#{facturaMB.numeroFactura()}"
-                                         style="width: 150px; height: 30px;" update=":formFactura"/>
+                                         style="width: 150px; height: 30px;" update=":formFactura"
+                                         action="#{facturaMB.enableButton()}"/>
                     </h:panelGrid>
                 </h:form>
                 
@@ -28,15 +29,17 @@
                                 <h:panelGrid id="gridBuscarDatosCliente" columns="5">
                                     <p:outputLabel value="Codigo Cliente" style="font-weight: bold;"/>
                                     <p:inputText id="txtBuscarCliente" value="#{facturaMB.codigoCliente}" size="12"
-                                                 converter="#{Integer}" converterMessage="El Codigo Debe Ser Numerico">
+                                                 converter="#{Integer}" converterMessage="El Codigo Debe Ser Numerico"
+                                                 disabled="#{!facturaMB.enable}">
                                         <p:ajax event="keyup" listener="#{facturaMB.agregarDatosDelCliente2()}"
                                                 update=":formFactura:gridDatosCliente :formFactura:txtBuscarCliente"/>
                                     </p:inputText>
                                     <p:commandButton value="..." oncomplete="PF('dialogClientes').show();"
-                                                     update=":formFactura:dlgClientes"/>
+                                                     update=":formFactura:dlgClientes"
+                                                     disabled="#{!facturaMB.enable}"/>
 
                                     <p:outputLabel value="Fecha:" style="font-weight: bold;"/>
-                                    <p:outputLabel value="Fecha Del Sistema" style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{facturaMB.fechaSistema}" style="font-weight: bold;"/>
                                 </h:panelGrid>
                                 <p:separator/>
 
@@ -63,11 +66,13 @@
 
                         <h:panelGrid id="gridBuscarProducto" columns="3">
                             <p:outputLabel value="Codigo De Barra"/>
-                            <p:inputText id="txtBuscarProductoCodigoBarra" value="#{facturaMB.codigoBarra}" size="12">
+                            <p:inputText id="txtBuscarProductoCodigoBarra" value="#{facturaMB.codigoBarra}" size="12"
+                                         disabled="#{!facturaMB.enable}">
                                 <p:ajax update=":formFactura:tablaProductosFactura :formFactura:txtBuscarProductoCodigoBarra"/>
                             </p:inputText>
                             <p:commandButton value="...." oncomplete="PF('dialogProductos').show();"
-                                             update=":formFactura:dlgProductos"/>
+                                             update=":formFactura:dlgProductos"
+                                             disabled="#{!facturaMB.enable}"/>
                         </h:panelGrid>
                         <p:separator/>
 
@@ -125,9 +130,17 @@
                             <p:outputLabel value="#{facturaMB.totalVentaFactura}"/>
                         </p:panelGrid>
                         <p:separator/>
-                        <p:commandButton value="Registrar" style="width: 150px; height: 30px;"/>
-                        <p:commandButton value="Imprimir" style="width: 150px; height: 30px;"/>
-                        <p:commandButton value="Cancelar" style="width: 150px; height: 30px;"/>
+                        <p:commandButton value="Registrar" actionListener="#{facturaMB.guardarVenta()}"
+                                         style="width: 150px; height: 30px;"
+                                         update=":formFactura"
+                                         disabled="#{!facturaMB.enable}"
+                                         action="#{facturaMB.disableButton()}"/>
+                        <p:commandButton value="Imprimir" style="width: 150px; height: 30px;"
+                                         disabled="#{!facturaMB.enable}"/>
+                        <p:commandButton value="Cancelar" action="#{facturaMB.limpiarFactura()}"
+                                         style="width: 150px; height: 30px;"
+                                         update=":formFactura"
+                                         disabled="#{!facturaMB.enable}"/>
 
                     </p:panel>
 

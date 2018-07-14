@@ -5,16 +5,15 @@
  */
 package com.proyecto.negocio;
 
-import com.proyecto.entidades.Factura;
+import com.proyecto.entidades.Detallefactura;
 import org.hibernate.Session;
 
 /**
  *
  * @author DUALPC
  */
-public interface IFacturaBL {
+public interface IDetalleFacturaBL {
     
-    public Factura obtenerRegistro(Session sesion)throws Exception;
-    public Long obtenerTotalRegistro(Session sesion);
-    public boolean guardarFactura(Session sesion, Factura factura)throws Exception;
+     public boolean guardarDetalleFactura(Session sesion, Detallefactura detalleFactura)throws Exception;
+    
 }

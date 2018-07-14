@@ -13,6 +13,10 @@ import org.hibernate.Session;
  * @author DUALPC
  */
 public interface IFacturaDao {
+    //Obtiene El Ultimo Registro De La Tabla Factura De La Base De Datos
     public Factura obtenerUltimoRegistro(Session sesion)throws Exception;
+    //Verifica Si la Tabla Factura Posee Registros
     public Long obtenerTotalRegistroFactura(Session sesion);
+    //Metodo Para Guardar Los Registros De La Factura En la Base De Datos
+    public boolean guardarVentaFactura(Session sesion, Factura factura)throws Exception;
 }
