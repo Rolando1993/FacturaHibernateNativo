@@ -64,7 +64,7 @@
                         </p:layout>
                         <p:separator/>
 
-                        <h:panelGrid id="gridBuscarProducto" columns="3">
+                        <h:panelGrid id="gridBuscarProducto" columns="6">
                             <p:outputLabel value="Codigo De Barra"/>
                             <p:inputText id="txtBuscarProductoCodigoBarra" value="#{facturaMB.codigoBarra}" size="12"
                                          disabled="#{!facturaMB.enable}">
@@ -73,6 +73,15 @@
                             <p:commandButton value="...." oncomplete="PF('dialogProductos').show();"
                                              update=":formFactura:dlgProductos"
                                              disabled="#{!facturaMB.enable}"/>
+                            
+                            <h:panelGroup>-----------</h:panelGroup>
+                            <p:panel style="width: 100px; height: 40px;">
+                                <h:commandLink id="btnImprimir" actionListener="#{facturaMB.verReporte()}" title="Exportar A PDF"
+                                               disabled="#{!facturaMB.enable}">
+                                    <p:graphicImage url="/resources/Imagenes/imprimir.jpg"/>
+                                </h:commandLink>
+                            </p:panel>
+                            <h:panelGroup>-----------</h:panelGroup>
                         </h:panelGrid>
                         <p:separator/>
 
@@ -135,8 +144,6 @@
                                          update=":formFactura"
                                          disabled="#{!facturaMB.enable}"
                                          action="#{facturaMB.disableButton()}"/>
-                        <p:commandButton value="Imprimir" style="width: 150px; height: 30px;"
-                                         disabled="#{!facturaMB.enable}"/>
                         <p:commandButton value="Cancelar" action="#{facturaMB.limpiarFactura()}"
                                          style="width: 150px; height: 30px;"
                                          update=":formFactura"

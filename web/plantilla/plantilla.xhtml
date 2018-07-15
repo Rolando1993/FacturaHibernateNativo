@@ -19,6 +19,16 @@
         <div id="top">
             <ui:insert name="top"></ui:insert>
             <h1>Sistema De Factura Web</h1>
+            <div id="sesionUsuario">
+                <span>
+                    <h:form>
+                        <p:outputLabel value="Hola"/>
+                        <p:outputLabel value="#{loginMB.usuario.vendedor.nombres} "/>
+                        <p:commandButton id="btnSalir" value="Salir" action="#{loginMB.cerrarSesion()}"/>
+                    </h:form>
+                </span>
+            </div>
+            
             <div id="menuPrincipal">
             <h:form>  
                 <p:menubar>

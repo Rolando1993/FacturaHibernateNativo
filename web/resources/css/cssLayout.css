@@ -9,6 +9,14 @@
     top: 5px;
 }
 
+#sesionUsuario{
+    color: #000000;
+    font-weight: bold;
+    position: absolute;
+    right: 25px;
+    top: 25px;
+}
+
 #top {
     position: relative;
     background-color: #036fab;

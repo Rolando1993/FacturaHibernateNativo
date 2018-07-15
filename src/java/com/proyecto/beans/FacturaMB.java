@@ -5,6 +5,7 @@
  */
 package com.proyecto.beans;
 
+import com.proyecto.encriptar.ReporteFactura;
 import com.proyecto.entidades.Cliente;
 import com.proyecto.entidades.Detallefactura;
 import com.proyecto.entidades.Factura;
@@ -21,14 +22,17 @@ import com.proyecto.negocio.ProductoBL;
 import com.proyecto.util.HibernateUtil;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.primefaces.context.RequestContext;
@@ -44,6 +48,9 @@ public class FacturaMB implements Serializable {
 
     Session sesion = null;
     Transaction tx = null;
+    
+    @ManagedProperty("#{loginMB}")
+    private LoginMB loginMB = new LoginMB();
 
     private Cliente cliente = new Cliente();
     private Integer codigoCliente;
@@ -78,6 +85,15 @@ public class FacturaMB implements Serializable {
         this.producto = new Producto();
     }
 
+    public LoginMB getLoginMB() {
+        return loginMB;
+    }
+
+    public void setLoginMB(LoginMB loginMB) {
+        this.loginMB = loginMB;
+    }
+
+    
     public Cliente getCliente() {
         return cliente;
     }
@@ -430,7 +446,7 @@ public class FacturaMB implements Serializable {
     public void guardarVenta() {
         this.sesion = null;
         this.tx = null;
-        this.vendedor.setCodigovendedor(2);
+        this.vendedor.setCodigovendedor(loginMB.getUsuario().getVendedor().getCodigovendedor());
         try {
             this.sesion = HibernateUtil.getSessionFactory().openSession();
             this.tx = this.sesion.beginTransaction();
@@ -497,6 +513,32 @@ public class FacturaMB implements Serializable {
         this.fechaSistema = fechaSistema;
     }
     
+    //Metodo Para Invocar El Reporte & Envie Los Parametros
+    public void verReporte()throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException{
+        
+        this.vendedor.setCodigovendedor(loginMB.getUsuario().getVendedor().getCodigovendedor());
+        
+        int cc = this.cliente.getCodigocliente();
+        int cv = this.vendedor.getCodigovendedor();
+        int cf = this.factura.getCodigofactura() + 1;
+        
+        //Invocamos Al metodo Guardar Venta Para Almacenar Ls Ventas En Las Tablas Correspondientes
+        this.guardarVenta();
+        
+        ReporteFactura rf = new ReporteFactura();
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        ServletContext sc = (ServletContext) fc.getExternalContext().getContext();
+        String ruta = sc.getRealPath("/Reportes/factura.jasper");
+        
+        System.out.println("Cliente " + cc);
+        System.out.println("Vendedor " + cv);
+        System.out.println("Factura " + cf);
+        
+        rf.getReporte(ruta, cc, cv, cf);
+        FacesContext.getCurrentInstance().responseComplete();
+        
+    }
     
 }
 
